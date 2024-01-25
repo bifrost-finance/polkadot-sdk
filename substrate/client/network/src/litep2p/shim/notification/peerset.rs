@@ -452,7 +452,12 @@ impl Peerset {
 				);
 
 				self.connected_peers.fetch_add(1usize, Ordering::Relaxed);
-				*state = PeerState::Closing { direction: *direction };
+				*state = PeerState::Closing {
+					direction: match direction {
+						traits::Direction::Inbound => Direction::Inbound(Reserved::Yes),
+						traits::Direction::Outbound => Direction::Outbound(Reserved::Yes),
+					},
+				};
 				false
 			},
 			state => {
