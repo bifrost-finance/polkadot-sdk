@@ -444,6 +444,17 @@ impl Peerset {
 				*state = PeerState::Closing { direction: *direction };
 				false
 			},
+			PeerState::Disconnected | PeerState::Backoff => {
+				log::debug!(
+					target: LOG_TARGET,
+					"{}: substream to {peer:?} is disconnected, closing substream",
+					self.protocol,
+				);
+
+				self.connected_peers.fetch_add(1usize, Ordering::Relaxed);
+				*state = PeerState::Closing { direction: *direction };
+				false
+			},
 			state => {
 				panic!("{}: invalid state for open substream {peer:?} {state:?}", self.protocol);
 			},
