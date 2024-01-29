@@ -88,7 +88,7 @@ use sp_std::{fmt::Debug, prelude::*};
 
 mod branch;
 pub mod migration;
-mod types;
+pub mod types;
 pub mod weights;
 
 use self::branch::{BeginDecidingBranch, OneFewerDecidingBranch, ServiceBranch};
