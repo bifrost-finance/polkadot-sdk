@@ -163,6 +163,61 @@ pub mod v1 {
 	}
 }
 
+pub mod v2 {
+	use super::*;
+
+	#[cfg(test)]
+	pub(super) use super::{ReferendumStatus, ReferendumStatusOf};
+
+	pub type ReferendumInfoOf<T, I> = ReferendumInfo<
+		TrackIdOf<T, I>,
+		PalletsOriginOf<T>,
+		BlockNumberFor<T>,
+		BoundedCallOf<T, I>,
+		BalanceOf<T, I>,
+		TallyOf<T, I>,
+		<T as frame_system::Config>::AccountId,
+		ScheduleAddressOf<T, I>,
+	>;
+
+	/// Info regarding a referendum, present or past.
+	#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	pub enum ReferendumInfo<
+		TrackId: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		RuntimeOrigin: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		Moment: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone + EncodeLike,
+		Call: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		Balance: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		Tally: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		AccountId: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+		ScheduleAddress: Eq + PartialEq + Debug + Encode + Decode + TypeInfo + Clone,
+	> {
+		/// Referendum has been submitted and is being voted on.
+		Ongoing(
+			ReferendumStatus<
+				TrackId,
+				RuntimeOrigin,
+				Moment,
+				Call,
+				Balance,
+				Tally,
+				AccountId,
+				ScheduleAddress,
+			>,
+		),
+		/// Referendum finished with approval. Submission deposit is held.
+		Approved(Moment, Option<Deposit<AccountId, Balance>>, Option<Deposit<AccountId, Balance>>),
+		/// Referendum finished with rejection. Submission deposit is held.
+		Rejected(Moment, Option<Deposit<AccountId, Balance>>, Option<Deposit<AccountId, Balance>>),
+		/// Referendum finished with cancellation. Submission deposit is held.
+		Cancelled(Moment, Option<Deposit<AccountId, Balance>>, Option<Deposit<AccountId, Balance>>),
+		/// Referendum finished and was never decided. Submission deposit is held.
+		TimedOut(Moment, Option<Deposit<AccountId, Balance>>, Option<Deposit<AccountId, Balance>>),
+		/// Referendum finished with a kill.
+		Killed(Moment),
+	}
+}
+
 #[cfg(test)]
 pub mod test {
 	use super::*;
